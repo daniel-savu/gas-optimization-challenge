@@ -10,14 +10,6 @@ contract GasContract {
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
 
-    modifier onlyOwner() {
-        if (msg.sender != administrators[4]) {
-            revert();
-        } else {
-            _;
-        }
-    }
-
     constructor(address[] memory _admins, uint256 totalSupply) {
         balances[msg.sender] = totalSupply;
         for (uint256 ii = 0; ii < 5; ii++) {
@@ -32,21 +24,16 @@ contract GasContract {
     function transfer(
         address _recipient,
         uint256 _amount,
-        string calldata _name
-    ) public returns (bool status_) {
+        string memory _name
+    ) public {
         balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
-        return true;
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
         public
-        onlyOwner
     {
-        require(
-            _tier < 255,
-            "Gas Contract - addToWhitelist function -  tier level should not be greater than 255"
-        );
+        require(msg.sender == administrators[4] && _tier < 255);
         if (_tier > 3) {
             whitelist[_userAddrs] = 3;
         } else {
@@ -60,8 +47,7 @@ contract GasContract {
         uint256 _amount
     ) public {
         whiteListStruct[msg.sender] = _amount;
-        balances[msg.sender] -= (_amount - whitelist[msg.sender]);
-        balances[_recipient] += (_amount - whitelist[msg.sender]);
+        transfer(_recipient, _amount - whitelist[msg.sender], "");
         
         emit WhiteListTransfer(_recipient);
     }
@@ -70,8 +56,6 @@ contract GasContract {
         return (true, whiteListStruct[sender]);
     }
 
-    receive() external payable {
-        payable(msg.sender).transfer(msg.value);
-    }
+    receive() external payable {}
 
 }
