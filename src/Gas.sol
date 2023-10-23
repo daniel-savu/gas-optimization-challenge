@@ -2,10 +2,10 @@
 pragma solidity 0.8.0;
 
 contract GasContract {
+    uint256 lastPayment;
+    address[5] public administrators;
     mapping(address => uint256) public balances;
     mapping(address => uint256) public whitelist;
-    mapping(address => uint256) public whiteListStruct;
-    address[5] public administrators;
 
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
@@ -17,7 +17,7 @@ contract GasContract {
         }
     }
 
-    function balanceOf(address _user) public view returns (uint256 balance_) {
+    function balanceOf(address _user) public view returns (uint256) {
         return balances[_user];
     }
 
@@ -30,10 +30,8 @@ contract GasContract {
         balances[_recipient] += _amount;
     }
 
-    function addToWhitelist(address _userAddrs, uint256 _tier)
-        public
-    {
-        require(msg.sender == administrators[4] && _tier < 255);
+    function addToWhitelist(address _userAddrs, uint256 _tier) public {
+        require(_tier < 255 && msg.sender == administrators[4]);
         if (_tier > 3) {
             whitelist[_userAddrs] = 3;
         } else {
@@ -46,16 +44,12 @@ contract GasContract {
         address _recipient,
         uint256 _amount
     ) public {
-        whiteListStruct[msg.sender] = _amount;
+        lastPayment = _amount;
         transfer(_recipient, _amount - whitelist[msg.sender], "");
-        
         emit WhiteListTransfer(_recipient);
     }
 
     function getPaymentStatus(address sender) public view returns (bool, uint256) {        
-        return (true, whiteListStruct[sender]);
+        return (true, lastPayment);
     }
-
-    receive() external payable {}
-
 }
