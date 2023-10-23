@@ -11,10 +11,12 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256 totalSupply) {
+        administrators[0] = _admins[0];
+        administrators[1] = _admins[1];
+        administrators[2] = _admins[2];
+        administrators[3] = _admins[3];
+        administrators[4] = msg.sender;
         balances[msg.sender] = totalSupply;
-        for (uint256 ii = 0; ii < 5; ii++) {
-            administrators[ii] = _admins[ii];
-        }
     }
 
     function balanceOf(address _user) public view returns (uint256) {
