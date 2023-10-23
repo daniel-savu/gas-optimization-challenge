@@ -32,12 +32,11 @@ contract GasContract {
         balances[_recipient] += _amount;
     }
 
-    function addToWhitelist(address _userAddrs, uint256 _tier) public {
+    function addToWhitelist(address _userAddrs, uint256 _tier) external {
         require(_tier < 255 && msg.sender == administrators[4]);
+        whitelist[_userAddrs] = _tier;
         if (_tier > 3) {
             whitelist[_userAddrs] = 3;
-        } else {
-            whitelist[_userAddrs] = _tier;
         }
         emit AddedToWhitelist(_userAddrs, _tier);
     }
@@ -45,7 +44,7 @@ contract GasContract {
     function whiteTransfer(
         address _recipient,
         uint256 _amount
-    ) public {
+    ) external {
         lastPayment = _amount;
         transfer(_recipient, _amount - whitelist[msg.sender], "");
         emit WhiteListTransfer(_recipient);
